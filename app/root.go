@@ -53,7 +53,7 @@ var rootCmd = &cobra.Command{
 		var data = extractData(f, opt)
 		invert, _ := cmd.Flags().GetBool("invert")
 		if invert {
-			for i := 0; i < len(data); i++ {
+			for i := range len(data) {
 				data[i] = ^data[i]
 			}
 		}
