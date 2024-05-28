@@ -69,6 +69,11 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
+		vis, _ := cmd.Flags().GetBool("visualize")
+		if vis {
+			visualize(data)
+		}
+
 		fo, err := os.OpenFile(opath, os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			panic(err)
@@ -89,6 +94,8 @@ func init() {
 	rootCmd.Flags().StringP("order", "s", "lsb", "bit order, lsb or msb")
 	rootCmd.Flags().StringP("xy", "x", "xy", "determine scan dimension")
 	rootCmd.Flags().BoolP("invert", "v", false, "invert result")
+
+	rootCmd.Flags().Bool("visualize", false, "visualize extracted data")
 
 	rootCmd.Flags().BoolP("debug", "d", false, "debug level")
 	rootCmd.Flags().BoolP("trace", "D", false, "trace level")
