@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bytes"
+	"encoding/binary"
 	"image"
 	. "image/color"
 	"os"
@@ -63,4 +65,10 @@ func extractData(f *os.File, opt StegOption) []byte {
 			bits = append(bits, uint8((dat>>(bs-1))&1))
 		}
 	}
+
+	var bytebuf = bytes.NewBuffer([]byte{})
+	for i := range len(bits) {
+		binary.Write(bytebuf, binary.BigEndian, bits[i])
+	}
+	return bytebuf.Bytes()
 }
