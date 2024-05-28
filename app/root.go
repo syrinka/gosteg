@@ -75,9 +75,9 @@ func init() {
 	rootCmd.Flags().StringP("output", "o", "<nil>", "output path")
 	rootCmd.Flags().StringP("channel", "c", "<nil>", "selected channel")
 	rootCmd.Flags().UintSliceP("bits", "b", []uint{1}, "bits")
-	rootCmd.Flags().StringP("order", "s", "lsb", "bit order, {lsb|msb}")
+	rootCmd.Flags().StringP("order", "s", "lsb", "bit order, lsb or msb")
 	rootCmd.Flags().StringP("xy", "x", "xy", "determine scan dimension")
-	rootCmd.Flags().BoolP("invert", "v", false, "invert result (xor 0xFF..)")
+	rootCmd.Flags().BoolP("invert", "v", false, "invert result")
 
 	rootCmd.MarkFlagRequired("channel")
 }
