@@ -40,7 +40,6 @@ func getPixels(img image.Image, opt StegOption) []Color {
 }
 
 func extractData(f *os.File, opt StegOption) []byte {
-	// return []byte{0x00, 0xFF, 0xAA}
 	var bits []uint8
 	img, _, err := image.Decode(f)
 	if err != nil {
