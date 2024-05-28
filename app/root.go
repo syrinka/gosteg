@@ -78,6 +78,8 @@ func init() {
 	rootCmd.Flags().StringP("order", "s", "lsb", "bit order, {lsb|msb}")
 	rootCmd.Flags().StringP("xy", "x", "xy", "determine scan dimension")
 	rootCmd.Flags().BoolP("invert", "v", false, "invert result (xor 0xFF..)")
+
+	rootCmd.MarkFlagRequired("channel")
 }
 
 func Execute() {
