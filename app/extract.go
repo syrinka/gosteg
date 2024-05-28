@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"image"
-	. "image/color"
+	"image/color"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
@@ -19,10 +19,10 @@ type StegOption struct {
 	xy      string
 }
 
-func getPixels(img image.Image, opt StegOption) []Color {
+func getPixels(img image.Image, opt StegOption) []color.Color {
 	var bounds = img.Bounds()
 	logrus.Debugf("image size: %dx%d", bounds.Dx(), bounds.Dy())
-	var result = make([]Color, bounds.Dx()*bounds.Dy())
+	var result = make([]color.Color, bounds.Dx()*bounds.Dy())
 	var index = 0
 	if opt.xy == "xy" {
 		for i := range bounds.Dx() {
