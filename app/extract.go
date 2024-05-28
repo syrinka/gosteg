@@ -8,6 +8,8 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 type StegOption struct {
@@ -19,6 +21,7 @@ type StegOption struct {
 
 func getPixels(img image.Image, opt StegOption) []Color {
 	var bounds = img.Bounds()
+	logrus.Debugf("image size: %dx%d", bounds.Dx(), bounds.Dy())
 	var result = make([]Color, bounds.Dx()*bounds.Dy())
 	var index = 0
 	if opt.xy == "xy" {
@@ -41,10 +44,11 @@ func getPixels(img image.Image, opt StegOption) []Color {
 
 func extractData(f *os.File, opt StegOption) []byte {
 	var bits []uint8
-	img, _, err := image.Decode(f)
+	img, format, err := image.Decode(f)
 	if err != nil {
 		panic(err)
 	}
+	logrus.Debugf("image format: %s", format)
 
 	var pix = getPixels(img, opt)
 	for i := range len(pix) {
@@ -67,10 +71,10 @@ func extractData(f *os.File, opt StegOption) []byte {
 				bs = 8 - bs // most significant bit first
 			}
 			bits = append(bits, uint8((dat>>(bs-1))&1))
-
 		}
 	}
 
+	// convert 8 bit into 1 byte
 	var bytebuf = bytes.NewBuffer([]byte{})
 
 	var count int = 0
@@ -79,6 +83,7 @@ func extractData(f *os.File, opt StegOption) []byte {
 		buf = (buf << 1) | bits[i]
 		count += 1
 		if count == 8 {
+			logrus.Tracef("buf = %x", buf)
 			binary.Write(bytebuf, binary.LittleEndian, buf)
 			count = 0
 			buf = 0

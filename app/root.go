@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -11,6 +12,15 @@ var rootCmd = &cobra.Command{
 	Use:   "gosteg",
 	Short: "A mimic of zsteg",
 	Run: func(cmd *cobra.Command, args []string) {
+		dbg, _ := cmd.Flags().GetBool("debug")
+		if dbg {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
+		tra, _ := cmd.Flags().GetBool("trace")
+		if tra {
+			logrus.SetLevel(logrus.TraceLevel)
+		}
+
 		if len(args) != 1 {
 			panic("need input path")
 		}
@@ -43,6 +53,7 @@ var rootCmd = &cobra.Command{
 			order:   order,
 			xy:      xy,
 		}
+		logrus.Debug(opt)
 
 		f, err := os.Open(ipath)
 		if err != nil {
@@ -78,6 +89,9 @@ func init() {
 	rootCmd.Flags().StringP("order", "s", "lsb", "bit order, lsb or msb")
 	rootCmd.Flags().StringP("xy", "x", "xy", "determine scan dimension")
 	rootCmd.Flags().BoolP("invert", "v", false, "invert result")
+
+	rootCmd.Flags().BoolP("debug", "d", false, "debug level")
+	rootCmd.Flags().BoolP("trace", "D", false, "trace level")
 
 	rootCmd.MarkFlagRequired("channel")
 }
