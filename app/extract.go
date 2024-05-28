@@ -17,28 +17,31 @@ type StegOption struct {
 	xy      string
 }
 
-func getPixels(img image.Image, opt StegOption) (result []Color) {
-	var bounds = img.Bounds().Max
-	result = make([]Color, bounds.X*bounds.Y)
+func getPixels(img image.Image, opt StegOption) []Color {
+	var bounds = img.Bounds()
+	var result = make([]Color, bounds.Dx()*bounds.Dy())
+	var index = 0
 	if opt.xy == "xy" {
-		for i := range bounds.X {
-			for j := range bounds.Y {
-				result = append(result, img.At(i, j))
+		for i := range bounds.Dx() {
+			for j := range bounds.Dy() {
+				result[index] = img.At(i, j)
+				index += 1
 			}
 		}
 	} else {
-		for i := range bounds.Y {
-			for j := range bounds.X {
-				result = append(result, img.At(j, i))
+		for i := range bounds.Dy() {
+			for j := range bounds.Dx() {
+				result[index] = img.At(j, i)
+				index += 1
 			}
 		}
 	}
-	return
+	return result
 }
 
 func extractData(f *os.File, opt StegOption) []byte {
 	// return []byte{0x00, 0xFF, 0xAA}
-	var bits = make([]uint8, 0)
+	var bits []uint8
 	img, _, err := image.Decode(f)
 	if err != nil {
 		panic(err)
@@ -50,27 +53,40 @@ func extractData(f *os.File, opt StegOption) []byte {
 		var dat uint32
 		switch opt.channel {
 		case "r":
-			dat = r
+			dat = r >> 8
 		case "g":
-			dat = g
+			dat = g >> 8
 		case "b":
-			dat = b
+			dat = b >> 8
 		case "a":
-			dat = a
+			dat = a >> 8
 		}
 
 		for j := range len(opt.bits) {
 			var bs = opt.bits[j]
 			if opt.order == "msb" {
-				bs = 16 - bs // most significant bit first
+				bs = 8 - bs // most significant bit first
 			}
 			bits = append(bits, uint8((dat>>(bs-1))&1))
+
 		}
 	}
 
 	var bytebuf = bytes.NewBuffer([]byte{})
+
+	var count int = 0
+	var buf uint8 = 0
 	for i := range len(bits) {
-		binary.Write(bytebuf, binary.BigEndian, bits[i])
+		buf = (buf << 1) | bits[i]
+		count += 1
+		if count == 8 {
+			binary.Write(bytebuf, binary.LittleEndian, buf)
+			count = 0
+			buf = 0
+		}
+	}
+	if count != 0 { // write the rest data
+		binary.Write(bytebuf, binary.LittleEndian, buf)
 	}
 	return bytebuf.Bytes()
 }
